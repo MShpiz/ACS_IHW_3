@@ -72,24 +72,9 @@ loop1:
     bnez	t5 loop1
 replace1:
     sb	zero (t5)
-    
-    la   a0, out_file_name	# open file for writing
-    li   a7, 1024     
-    li   a1, 1        
-    ecall             
-    mv   t0, a0       # save the file descriptor
-
-    # Write string from s0 to file just opened
-    li   a7, 64       
-    mv   a0, t0       
-    mv   a1, s0       
-    li   a2, 37       
-    ecall             
-   
-    # Close the file
-    li   a7, 57       
-    mv   a0, t0       # file descriptor to close
-    ecall             # close file
+    la	a0 out_file_name
+    mv	a1 s0
+    jal write_to_file
 end_write:
 
 # finish program
