@@ -1,13 +1,12 @@
 .include "macrolib.s"
 .global write_result
 
-.eqv    NAME_SIZE 256	# Размер буфера для имени файла
+.eqv    OUT_NAME_SIZE 256	# 
 .data
-prompt:         .asciz "Enter file path: "     # Путь до читаемого файла
-prompt_console:         .asciz "Do you want to get results in console? (Y/N)"     # Путь до читаемого файла
+prompt_out:         .asciz "Enter output file path: "     
+prompt_console:         .asciz "Do you want to get results in console? (Y/N)"     
 
-out_file_name:      .space	NAME_SIZE		# Имячитаемого файла
-answer:		.space	3
+out_file_name:      .space	OUT_NAME_SIZE		# name of output file
 ansBuff: .space 3
 .text
 write_result:
@@ -19,12 +18,12 @@ mv	s0, a0
 # ask user about console
 
 la	a0, prompt_console
-la 	a1 answer
+la 	a1 ansBuff
 li  	a2 3
 li 	 a7 54
 ecall
 
-la	t0, answer
+la	t0, ansBuff
 lb	t3 (t0)
 li	t1, 89
 li	t2, 121
@@ -52,9 +51,9 @@ writeToFile:
     ###############################################################
     # Вывод подсказки
     # Ввод имени файла с консоли эмулятора
-    la	a0, prompt
+    la	a0, prompt_out
     la	a1 out_file_name
-    li  a2 NAME_SIZE
+    li  a2 OUT_NAME_SIZE
     li  a7 54
     ecall
     # Убрать перевод строки
@@ -64,13 +63,16 @@ loop1:
     lb	t6  (t5)
     beq t4	t6	replace1
     addi t5 t5 1
-    b	loop1
+    bnez	t5 loop1
 replace1:
     sb	zero (t5)
+    
+    la   a0, out_file_name
     li   a7, 1024     # system call for open file
     li   a1, 1        # Open for writing (flags are 0: read, 1: write)
     ecall             # open a file (file descriptor returned in a0)
     mv   t0, a0       # save the file descriptor
+
     ###############################################################
     # Write to file just opened
     li   a7, 64       # system call for write to file
@@ -78,7 +80,7 @@ replace1:
     mv   a1, s0       # address of buffer from which to write
     li   a2, 37       # hardcoded buffer length
     ecall             # write to file
-    li t1, 37
+   
     ###############################################################
     # Close the file
     li   a7, 57       # system call for close file
