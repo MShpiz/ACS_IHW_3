@@ -1,13 +1,10 @@
 .include "macrolib.s"
 .global write_result
 
-.eqv    OUT_NAME_SIZE 256	# length of name of output file
 .data
-prompt_out:         .asciz "Enter output file path: "     
 prompt_console:         .asciz "Do you want to get results in console? (Y/N)"     
 bad_answer:	.asciz "Invalid answer. Writing results to file."
 
-out_file_name:      .space	OUT_NAME_SIZE		# name of output file
 ansBuff: .space 3
 
 .text
@@ -56,24 +53,8 @@ ecall
 
 # write to file
 writeToFile: 
-    # Getting output file name from user
-    la	a0, prompt_out
-    la	a1 out_file_name
-    li  a2 OUT_NAME_SIZE
-    li  a7 54
-    ecall
-    # remove \n from file name
-    li	t4 '\n'
-    la	t5	out_file_name
-loop1:
-    lb	t6  (t5)
-    beq t4	t6	replace1
-    addi t5 t5 1
-    bnez	t5 loop1
-replace1:
-    sb	zero (t5)
-    la	a0 out_file_name
-    mv	a1 s0
+    jal ask_file_name		# getting file to write results to from user
+    mv	a1 s0			# passing string to write
     jal write_to_file
 end_write:
 

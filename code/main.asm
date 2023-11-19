@@ -8,6 +8,8 @@ buff:	.space	TEXT_SIZE
 .text
 .global	main
 main:
+jal ask_file_name	# get initial file from user
+mv	a2, a0		# passing file_name for reading
 la	a0, buff	# passing lenght of buffer
 li	a1, TEXT_SIZE
 jal read_from_file	# returns lenght of final string to a0

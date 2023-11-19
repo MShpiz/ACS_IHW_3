@@ -1,7 +1,7 @@
 .include "macrolib.s"
 
 .globl write_to_file
-
+.text
 write_to_file:
     push(ra)
     mv	t6 a0

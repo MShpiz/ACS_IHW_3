@@ -2,14 +2,10 @@
 .global read_from_file
 
 read_from_file:
-# Чтение текста из файла, задаваемого в диалоге, в буфер фиксированного размера
-.eqv    NAME_SIZE 256	# Размер буфера для имени файла
-    .data
-prompt:         .asciz "Enter file path: "     # Путь до читаемого файла
+
+.data
 incorrect_file:	.asciz	"Incorrect file name"
 incorrect_read:	.asciz	"Incorrect read operation"
-
-file_name:      .space	NAME_SIZE		# Имячитаемого файла
 
 .text
     push(ra)
@@ -17,29 +13,15 @@ file_name:      .space	NAME_SIZE		# Имячитаемого файла
     push(s1)
     push(s2)
     push(s3)
+    push(s4)
     mv	s1, a0
     mv	s2, a1
+    mv  s4, a2
     addi	s2, s2, -1 # make place for \0
     
-    # Getting input file name from user
-    la	a0, prompt
-    la	a1 file_name
-    li  a2 NAME_SIZE
-    li  a7 54
-    ecall
-    # remove \n
-    li	t4 '\n'
-    la	t5	file_name
-loop:
-    lb	t6  (t5)
-    beq t4	t6	replace
-    addi t5 t5 1
-    b	loop
-replace:
-    sb	zero (t5)
     # open file
     li   	a7 1024     	
-    la      a0 file_name    
+    mv          a0 s4
     li   	a1 0        	
     ecall             		
     li		t0 -1			
@@ -72,6 +54,7 @@ replace:
     sb	zero (t0)	 
     
     end_read:
+    pop(s4)
     pop(s3)
     pop(s2)
     pop(s1)
