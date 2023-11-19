@@ -1,31 +1,21 @@
-# variant 31
+# variant 16
 .include "macrolib.s"
+.eqv    TEXT_SIZE 512	# Размер буфера для текста
+
+.data
+buff:	.space	TEXT_SIZE
+
 .text
 .global	main
 main:
-jal user_input_integral
+la	a0, buff	# passing lenght of buffer
+li	a1, TEXT_SIZE
+addi	a1, a1, -1	# passing lenght of buffer -1 to have 1 byte for 0
+jal read_from_file	# returns lenght of final string to a0
+bltz	a0, program_end	# if resulting length of text is less than 0 (error occured) -> finish program
+la	a0, buff	# passing string
+jal countLettersDigits
 
-# returned a - a0
-# returned b t - a1
-# returned begining of interval - a2
-# returned end of interval - a3
-
-fpush(fa0)
-fpush(fa1)
-fpush(fa2)
-fpush(fa3)
-# passing a as an argument - a0
-# passing b as an argument - a1
-# passing begining of interval as an argument - a2
-# passing end of interval as an argument - a3
-
-jal print_equation
-
-fpop(fa3)	# passing end of interval as an argument
-fpop(fa2)	# passing begining of interval as an argument
-fpop(fa1)	# passing b as an argument
-fpop(fa0)	# passing a as an argument
-jal integrate			# result of integration returns in a0
-
-jal print_result	# passing result of integration by a0
+jal write_result
+program_end:
 exit

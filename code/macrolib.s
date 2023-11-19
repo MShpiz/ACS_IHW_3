@@ -1,4 +1,4 @@
-# РџРµС‡Р°С‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЂРµРіРёСЃС‚СЂР° РєР°Рє С†РµР»РѕРіРѕ
+# Печать содержимого регистра как целого
 .macro print_int (%x)
 	li a7, 1
 	mv a0, %x
@@ -11,14 +11,14 @@
    ecall
 .end_macro
 
-# Р’РІРѕРґ С†РµР»РѕРіРѕ С‡РёСЃР»Р° СЃ РєРѕРЅСЃРѕР»Рё РІ СЂРµРіРёСЃС‚СЂ a0
+# Ввод целого числа с консоли в регистр a0
 .macro read_int_a0
    li a7, 5
    ecall
 .end_macro
 
-# Р’РІРѕРґ С†РµР»РѕРіРѕ С‡РёСЃР»Р° СЃ РєРѕРЅСЃРѕР»Рё РІ СѓРєР°Р·Р°РЅРЅС‹Р№ СЂРµРіРёСЃС‚СЂ,
-# РёСЃРєР»СЋС‡Р°СЏ СЂРµРіРёСЃС‚СЂ a0
+# Ввод целого числа с консоли в указанный регистр,
+# исключая регистр a0
 .macro read_int(%x)
    push	(a0)
    li a7, 5
@@ -39,9 +39,24 @@ str:
    pop	(a0)
    .end_macro
 
+.macro print_str_r (%x)
+   .text
+   push (a0)
+   li a7, 4
+   mv a0, %x
+   ecall
+   pop	(a0)
+   .end_macro
+   
    .macro print_char(%x)
    li a7, 11
    li a0, %x
+   ecall
+   .end_macro
+   
+   .macro print_char_r(%x)
+   li a7, 11
+   mv a0, %x
    ecall
    .end_macro
 
@@ -49,19 +64,19 @@ str:
    print_char('\n')
    .end_macro
 
-# Р—Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕРіСЂР°РјРјС‹
+# Завершение программы
 .macro exit
     li a7, 10
     ecall
 .end_macro
 
-# РЎРѕС…СЂР°РЅРµРЅРёРµ Р·Р°РґР°РЅРЅРѕРіРѕ СЂРµРіРёСЃС‚СЂР° РЅР° СЃС‚РµРєРµ
+# Сохранение заданного регистра на стеке
 .macro push(%x)
 	addi	sp, sp, -4
 	sw	%x, (sp)
 .end_macro
 
-# Р’С‹С‚Р°Р»РєРёРІР°РЅРёРµ Р·РЅР°С‡РµРЅРёСЏ СЃ РІРµСЂС€РёРЅС‹ СЃС‚РµРєР° РІ СЂРµРіРёСЃС‚СЂ
+# Выталкивание значения с вершины стека в регистр
 .macro pop(%x)
 	lw	%x, (sp)
 	addi	sp, sp, 4
@@ -109,3 +124,79 @@ str:
 	fld	%x, (sp)
 	addi	sp, sp, 8
 .end_macro
+
+.macro	strncpy (%cpy, %str, %cnt)
+	push(s0)
+	push(s1)
+	push(s2)
+	push(%cpy)
+	
+	push(%cpy)
+	push(%str)
+	push(%cnt)
+	pop(s1)
+	pop(s0)
+	pop(s2)
+	
+	li t0 102
+	ble	s1 t0 zero_check		# if count is bigger than buffer size, change to buffer size
+	mv	s1 t0
+	
+	zero_check:
+	blez	s1, endcpy		# if count less than zero, finish copy
+
+	
+	loop:
+		lb	t1 (s0)
+		sb	t1 (s2)			# copy symbol from first string to second
+		addi	s0, s0, 1			# move positions in string and make number of characters to copy less
+		addi	s1, s1, -1
+		addi	s2, s2, 1
+		beqz	s1, filler
+		bnez 	t1, loop
+	filler:
+		blez	s1, endcpy
+		li	t1, 0
+		sb	t1 (s2)			# fill whats left with 0 characters
+					# move positions in string and make number of characters to fill less
+		addi	s1, s1, -1
+		addi	s2 s2 1
+		b	filler
+
+	endcpy:
+	
+	pop(a0)
+	pop(s2)
+	pop(s1)
+	pop(s0)
+.end_macro
+
+# Открытие файла для чтения, записи, дополнения
+.eqv READ_ONLY	0	# Открыть для чтения
+.eqv WRITE_ONLY	1	# Открыть для записи
+.eqv APPEND	    9	# Открыть для добавления
+.macro open(%file_name, %opt)
+    li   	a7 1024     	# Системный вызов открытия файла
+    la      a0 %file_name   # Имя открываемого файла
+    li   	a1 %opt        	# Открыть для чтения (флаг = 0)
+    ecall             		# Дескриптор файла в a0 или -1)
+.end_macro
+
+#-------------------------------------------------------------------------------
+# Чтение информации из открытого файла
+.macro read(%file_descriptor, %strbuf, %size)
+    li   a7, 63       	# Системный вызов для чтения из файла
+    mv   a0, %file_descriptor       # Дескриптор файла
+    la   a1, %strbuf   	# Адрес буфера для читаемого текста
+    li   a2, %size 		# Размер читаемой порции
+    ecall             	# Чтение
+.end_macro
+#-------------------------------------------------------------------------------
+# Закрытие файла
+.macro close(%file_descriptor)
+    li   a7, 57       # Системный вызов закрытия файла
+    mv   a0, %file_descriptor  # Дескриптор файла
+    ecall             # Закрытие файла
+.end_macro
+
+
