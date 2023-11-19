@@ -1,21 +1,23 @@
 .include "macrolib.s"
 .global write_result
 
-.eqv    OUT_NAME_SIZE 256	# 
+.eqv    OUT_NAME_SIZE 256	# length of name of output file
 .data
 prompt_out:         .asciz "Enter output file path: "     
 prompt_console:         .asciz "Do you want to get results in console? (Y/N)"     
+bad_answer:	.asciz "Invalid answer. Writing results to file."
 
 out_file_name:      .space	OUT_NAME_SIZE		# name of output file
 ansBuff: .space 3
+
 .text
 write_result:
 push(ra)
 push(s0)
-jal make_result_string
+jal make_result_string		# make a sring from numbers in a0 and a1
 mv	s0, a0
 
-# ask user about console
+# ask user if user wants results in console instead of file
 
 la	a0, prompt_console
 la 	a1 ansBuff
@@ -23,40 +25,44 @@ li  	a2 3
 li 	 a7 54
 ecall
 
-la	t0, ansBuff
+la	t0, ansBuff		# if answer is Y or y write result to console
 lb	t3 (t0)
 li	t1, 89
 li	t2, 121
 beq	t3, t1, writeToConsole
 beq	t3, t2, writeToConsole
 
-li	t1, 78
+li	t1, 78			# if answer is N or n write result to file
 li	t2, 110
 beq	t3, t1, writeToFile
 beq	t3, t2, writeToFile
 
-j	BadAnswer
+j	BadAnswer		# else
 # write result to console
-writeToConsole:
+writeToConsole:			# writing to console
 mv	a0, s0
 li	a1, 1
 li 	 a7 55
 ecall
 
-j end_write
+j end_write			# finish function
 # get file name from user   
-BadAnswer:
+BadAnswer:		# informing user that results will be written to file
 
+la	a0, bad_answer
+li	a1, 1
+li 	 a7 55
+ecall
+
+# write to file
 writeToFile: 
-    ###############################################################
-    # Вывод подсказки
-    # Ввод имени файла с консоли эмулятора
+    # Getting output file name from user
     la	a0, prompt_out
     la	a1 out_file_name
     li  a2 OUT_NAME_SIZE
     li  a7 54
     ecall
-    # Убрать перевод строки
+    # remove \n from file name
     li	t4 '\n'
     la	t5	out_file_name
 loop1:
@@ -67,29 +73,26 @@ loop1:
 replace1:
     sb	zero (t5)
     
-    la   a0, out_file_name
-    li   a7, 1024     # system call for open file
-    li   a1, 1        # Open for writing (flags are 0: read, 1: write)
-    ecall             # open a file (file descriptor returned in a0)
+    la   a0, out_file_name	# open file for writing
+    li   a7, 1024     
+    li   a1, 1        
+    ecall             
     mv   t0, a0       # save the file descriptor
 
-    ###############################################################
-    # Write to file just opened
-    li   a7, 64       # system call for write to file
-    mv   a0, t0       # file descriptor
-    mv   a1, s0       # address of buffer from which to write
-    li   a2, 37       # hardcoded buffer length
-    ecall             # write to file
+    # Write string from s0 to file just opened
+    li   a7, 64       
+    mv   a0, t0       
+    mv   a1, s0       
+    li   a2, 37       
+    ecall             
    
-    ###############################################################
     # Close the file
-    li   a7, 57       # system call for close file
-    mv   a0, s6       # file descriptor to close
+    li   a7, 57       
+    mv   a0, t0       # file descriptor to close
     ecall             # close file
-# write result to file
 end_write:
 
-
+# finish program
 pop(s0)
 pop(ra)
 ret
