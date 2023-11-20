@@ -14,9 +14,11 @@ incorrect_read:	.asciz	"Incorrect read operation"
     push(s2)
     push(s3)
     push(s4)
-    mv	s1, a0
-    mv	s2, a1
-    mv  s4, a2
+    mv	s1, a0		# buffer
+    mv	s2, a1		# lenght
+    mv  s4, a2		# file name
+    print_str_r(s4)
+    newline
     addi	s2, s2, -1 # make place for \0
     
     # open file
@@ -52,7 +54,7 @@ incorrect_read:	.asciz	"Incorrect read operation"
     addi t0 t0 1	 
     addi a0 a0 1	# length of text + \0
     sb	zero (t0)	 
-    
+    li	a0, 0
     end_read:
     pop(s4)
     pop(s3)

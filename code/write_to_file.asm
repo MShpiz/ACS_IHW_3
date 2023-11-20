@@ -4,8 +4,8 @@
 .text
 write_to_file:
     push(ra)
-    mv	t6 a0
-    mv	t5 a1
+    mv	t6 a0	# file name
+    mv	t5 a1	#string
     mv   a0, t6	# open file for writing
     li   a7, 1024     
     li   a1, 1        
