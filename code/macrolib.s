@@ -170,3 +170,32 @@ str:
 	pop(s1)
 	pop(s0)
 .end_macro
+
+######################################################333
+# macros for ihw3
+
+.macro read_file(%buffer, %lenght, %filename)
+
+push(%buffer)
+push(%lenght)
+push(%filename)
+pop(a2)
+pop(a1)
+pop(a0)
+jal read_from_file
+.end_macro
+
+.macro write_file(%filename, %buffer)
+
+push(%filename)
+push(%buffer)
+
+pop(a1)
+pop(a0)
+jal write_to_file
+.end_macro
+
+.macro count_letters_digits(%buffer)
+mv	a0, %buffer
+jal countLettersDigits
+.end_macro
