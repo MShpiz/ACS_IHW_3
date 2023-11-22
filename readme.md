@@ -52,4 +52,5 @@
 
 
 Котити закончились так что вот вам мем:
-![ggwtuq2](https://github.com/MShpiz/ACS_IHW_3/assets/88736099/b446c922-2a4d-4f5d-8fb4-cdca08222446)
+![ggwtuq2](https://github.com/MShpiz/ACS_IHW_3/assets/88736099/88f6d07c-f6f3-49b0-b48d-dc9096a721db)
+
