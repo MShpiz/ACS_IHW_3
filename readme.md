@@ -49,8 +49,8 @@
 |2| test_files/empty.txt |0|0|✔|
 |3| test_files/small_text.txt |36|8|✔|
 |4| test_files/long_text.txt |364|147|✔|
-|5| test_files/longer_than_buffer.txt |468|0|✔|
-|6| test_files/10+kb_file.txt |418|0|✔|
+|5| test_files/longer_than_buffer.txt |374|147|✔|
+|6| test_files/10+kb_file.txt |19749|0|✔|
 
 
 Котити закончились так что вот вам мем:
