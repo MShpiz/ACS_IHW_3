@@ -4,7 +4,7 @@
 # make string from numbers with 3 digits or less
 toString:	# a0 - number, a1 - buffer for result string
 push(ra)
-li t0 100	# tekuschiy razryad chisla
+li t0 100000	# tekuschiy razryad chisla
 li t3, 10	# ten
 loopp:
 div	t1, a0, t0	# get first digit

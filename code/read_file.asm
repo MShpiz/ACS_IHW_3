@@ -14,11 +14,13 @@ incorrect_read:	.asciz	"Incorrect read operation"
     push(s2)
     push(s3)
     push(s4)
+    push(s5)
     mv	s1, a0		# buffer
     mv	s2, a1		# lenght
     mv  s4, a2		# file name
-    print_str_r(s4)
-    newline
+    li	s3, 0		# letter count
+    li	s5, 0		# digit count
+    
     addi	s2, s2, -1 # make place for \0
     
     # open file
@@ -30,32 +32,42 @@ incorrect_read:	.asciz	"Incorrect read operation"
     beq		a0 t0 er_name	# if file name is bad tell user
     mv   	s0 a0       	
     
-    # read file
-    li   a7, 63       
-    mv   a0, s0       
-    mv a1, s1   
-    mv a2 s2 
+read_loop:
+    # reading file in portions
+
+    read_addr_reg(s0, s1, s2) # read a prt of file to s1
+    # check if reading was ok
+    li		t0 -1
+    beq		a0 t0 er_read	# if there was an error while reading file tell user
+    mv   	t4 a0       	
+    beq		t4 s2 count	# if length of new text is less than length of beffer add \0 in the end
+    mv		t3, t4
+    rem		t3 t3, s2
+    add		t3, t3, s1
+    sb		zero, (t3)
+    count:
     
-    ecall             
+    mv		a0 s1
+    jal 	countLettersDigits
+    add		s3, s3, a0
+    add		s5, s5, a1
     
-    beq		a0 s1 er_read	# if there was an error while reading file tell user
-    mv   	s3 a0       	# saving text
+    bne		t4 s2 end_loop  # if length of new text is less than length of beffer finnish reading.
+    
+    b read_loop				# read next portion of file
+end_loop:
     
     # close file
     li   a7, 57       
     mv   a0, s0       
     ecall             
     
-    # put \0 at the end of text
-    mv	t0 s1	 
-    add t0 t0 s3	 
-    sub a0, t0, s1	# length of text
     
-    addi t0 t0 1	 
-    addi a0 a0 1	# length of text + \0
-    sb	zero (t0)	 
     li	a0, 0
     end_read:
+    mv	a1, s3
+    mv	a2, s5
+    pop(s5)
     pop(s4)
     pop(s3)
     pop(s2)

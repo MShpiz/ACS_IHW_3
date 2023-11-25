@@ -43,6 +43,7 @@ loopC:
     addi	t2, t2, 1
     next:
     addi    t0 t0 1		# taking next symbol
+    
     j       loopC
 endCount:
 mv a0 t1		# returning counters

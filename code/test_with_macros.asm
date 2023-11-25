@@ -66,7 +66,9 @@ onetest:
 	mv 	s2 a2	# buffer
 	li	t1 TEXT_SIZE
 	read_file(s2, t1, s0)
-	count_letters_digits(s2)
+	bltz	a0 endTest
+	mv	a0, a1
+	mv	a1, a2
 	jal make_result_string		# make a sring from numbers in a0 and a1
 	write_file(s1, a0)
 	endTest:

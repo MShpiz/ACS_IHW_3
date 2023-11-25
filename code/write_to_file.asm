@@ -5,7 +5,7 @@
 write_to_file:
     push(ra)
     mv	t6 a0	# file name
-    mv	t5 a1	#string
+    mv	t5 a1	# string
     mv   a0, t6	# open file for writing
     li   a7, 1024     
     li   a1, 1        
@@ -16,7 +16,7 @@ write_to_file:
     li   a7, 64       
     mv   a0, t0       
     mv   a1, t5       
-    li   a2, 37       
+    li   a2, 45       
     ecall             
    
     # Close the file

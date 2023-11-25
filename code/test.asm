@@ -69,8 +69,8 @@ onetest:
 	mv	a2 s0
 	jal read_from_file
 	bltz	a0 endTest
-	mv	a0 s2
-	jal countLettersDigits
+	mv	a0, a1
+	mv	a1, a2
 	jal make_result_string		# make a sring from numbers in a0 and a1
 	mv	a1 a0
 	mv	a0 s1

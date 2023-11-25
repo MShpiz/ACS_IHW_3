@@ -199,3 +199,11 @@ jal write_to_file
 mv	a0, %buffer
 jal countLettersDigits
 .end_macro
+
+.macro read_addr_reg(%file_descriptor, %reg, %size)
+    li   a7, 63       	# Системный вызов для чтения из файла
+    mv   a0, %file_descriptor       # Дескриптор файла
+    mv   a1, %reg   	# Адрес буфера для читаемого текста из регистра
+    mv   a2, %size 		# Размер читаемой порции
+    ecall             	# Чтение
+.end_macro
