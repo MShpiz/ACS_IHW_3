@@ -11,7 +11,7 @@
    ecall
 .end_macro
 
-# Ââîä öåëîãî ÷èñëà ñ êîíñîëè â ðåãèñòð a0
+
 .macro read_int_a0
    li a7, 5
    ecall
