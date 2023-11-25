@@ -1,4 +1,4 @@
-# Печать содержимого регистра как целого
+# macrolib
 .macro print_int (%x)
 	li a7, 1
 	mv a0, %x
@@ -11,14 +11,12 @@
    ecall
 .end_macro
 
-# Ввод целого числа с консоли в регистр a0
+# Г‚ГўГ®Г¤ Г¶ГҐГ«Г®ГЈГ® Г·ГЁГ±Г«Г  Г± ГЄГ®Г­Г±Г®Г«ГЁ Гў Г°ГҐГЈГЁГ±ГІГ° a0
 .macro read_int_a0
    li a7, 5
    ecall
 .end_macro
 
-# Ввод целого числа с консоли в указанный регистр,
-# исключая регистр a0
 .macro read_int(%x)
    push	(a0)
    li a7, 5
@@ -39,7 +37,7 @@ str:
    pop	(a0)
    .end_macro
 
-.macro print_str_r (%x)
+.macro print_str_r (%x) # print string from register
    .text
    push (a0)
    li a7, 4
@@ -54,7 +52,7 @@ str:
    ecall
    .end_macro
    
-   .macro print_char_r(%x)
+   .macro print_char_r(%x)  # print char from register
    li a7, 11
    mv a0, %x
    ecall
@@ -64,19 +62,19 @@ str:
    print_char('\n')
    .end_macro
 
-# Завершение программы
+# finnish program
 .macro exit
     li a7, 10
     ecall
 .end_macro
 
-# Сохранение заданного регистра на стеке
+# push to stack
 .macro push(%x)
 	addi	sp, sp, -4
 	sw	%x, (sp)
 .end_macro
 
-# Выталкивание значения с вершины стека в регистр
+# get fromm stack
 .macro pop(%x)
 	lw	%x, (sp)
 	addi	sp, sp, 4
@@ -201,9 +199,9 @@ jal countLettersDigits
 .end_macro
 
 .macro read_addr_reg(%file_descriptor, %reg, %size)
-    li   a7, 63       	# Системный вызов для чтения из файла
-    mv   a0, %file_descriptor       # Дескриптор файла
-    mv   a1, %reg   	# Адрес буфера для читаемого текста из регистра
-    mv   a2, %size 		# Размер читаемой порции
-    ecall             	# Чтение
+    li   a7, 63       	# read file
+    mv   a0, %file_descriptor       
+    mv   a1, %reg   	
+    mv   a2, %size 		
+    ecall             	
 .end_macro
